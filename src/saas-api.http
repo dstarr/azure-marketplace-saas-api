@@ -19,6 +19,7 @@
 @new_quantity = {{$dotenv NEW_QUANTITY}}
 
 ### Get an access token
+
 # @name login
 POST https://login.microsoftonline.com/{{tenant_id}}/oauth2/v2.0/token
 content-type: application/x-www-form-urlencoded
