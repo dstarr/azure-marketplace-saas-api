@@ -1,0 +1,82 @@
+# For authenticating with the Microsoft Graph API
+@client_id = {{$dotenv CLIENT_ID}}
+@client_secret = {{$dotenv CLIENT_SECRET}}
+@tenant_id = {{$dotenv TENANT_ID}}
+
+# the token passed to the landing page, which must be captured from the URL
+# that calls the landing page from martketplace
+@marketplace_token = {{$dotenv MARKETPLACE_TOKEN}}
+
+# a subscription ID for use in retrieving a specific subscription
+@subscription_id = {{$dotenv SUBSCRIPTION_ID}}
+
+# the plan ID and quantity
+@plan_id = {{$dotenv PLAN_ID}}
+@quantity = {{$dotenv QUANTITY}}
+
+# the new plan ID and quantity
+@new_plan_id = {{$dotenv NEW_PLAN_ID}}
+@new_quantity = {{$dotenv NEW_QUANTITY}}
+
+### Get an access token
+# @name login
+POST https://login.microsoftonline.com/{{tenant_id}}/oauth2/v2.0/token
+content-type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+  &client_id={{client_id}}
+  &client_secret={{client_secret}}
+  &scope=20e940b3-4c77-4b0b-9a53-9e16a1b010a7/.default
+
+###
+
+@access_token = {{login.response.body.access_token}}
+
+GET https://marketplaceapi.microsoft.com/api/saas/subscriptions?api-version=2018-08-31
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+### Get a subscription
+
+GET https://marketplaceapi.microsoft.com/api/saas/subscriptions/{{subscription_id}}?api-version=2018-08-31
+Authorization: Bearer {{access_token}}
+
+### Activate a subscription
+
+POST https://marketplaceapi.microsoft.com/api/saas/subscriptions/{{subscription_id}}/activate?api-version=2018-08-31
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "planId": "{{plan_id}}",
+  "quantity": "{{quantity}}"
+}
+
+### Resolve a subscription
+
+POST https://marketplaceapi.microsoft.com/api/saas/subscriptions/resolve?api-version=2018-08-31
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+x-ms-marketplace-token: {{marketplace_token}}
+  
+{
+  "subscriptionId": "{{subscription_id}}"
+} 
+
+### Update a subscription
+
+PATCH https://marketplaceapi.microsoft.com/api/saas/subscriptions/{{subscription_id}}?api-version=2018-08-31
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "planId": "{{new_plan_id}}",
+  "quantity": "{{new_quantity}}"
+}
+
+# ### Delete a subscription
+DELETE https://marketplaceapi.microsoft.com/api/saas/subscriptions/{{subscription_id}}?api-version=2018-08-31
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+
